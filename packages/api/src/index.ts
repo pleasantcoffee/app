@@ -1,12 +1,32 @@
 import { createYoga } from "graphql-yoga";
+import { jwtVerify } from "jose";
 import { type Context, schema } from "./graphql/schema";
+import { prisma } from "./prisma";
 
 const yoga = createYoga<{}, Context>({
   schema,
   context: async ({ request }) => {
-    console.log(request.headers.get("Authorization"));
+    const token = request.headers
+      .get("Authorization")
+      ?.match(/^bearer (\S+)$/i)?.[0];
+
+    if (!token) {
+      return {
+        user: null,
+      };
+    }
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload } = await jwtVerify(token, secret);
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(payload.sub),
+      },
+    });
+
     return {
-      user: null,
+      user,
     };
   },
 });

@@ -14,7 +14,7 @@ import { client } from "~/gql";
 
 const SignInWithAppleMutation = graphql(
   `
-    mutation SignInWithApple($idToken: String) {
+    mutation SignInWithApple($idToken: String!) {
       signInWithApple(idToken: $idToken)
     }
   `,
@@ -43,9 +43,12 @@ export const LoginScreen: React.FC = () => {
                 AppleAuthenticationScope.EMAIL,
               ],
             });
-            mutate({
-              idToken: credential.identityToken,
-            });
+
+            if (credential.identityToken) {
+              mutate({
+                idToken: credential.identityToken,
+              });
+            }
           } catch (error) {
             if (error instanceof CodedError) {
               if (error.code === "ERR_REQUEST_CANCELED") {

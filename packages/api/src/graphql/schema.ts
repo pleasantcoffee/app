@@ -1,11 +1,11 @@
 import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
-import type PrismaTypes from "@pothos/plugin-prisma/generated";
-import { getDatamodel } from "@pothos/plugin-prisma/generated";
 import ScopeAuthPlugin from "@pothos/plugin-scope-auth";
 import WithInputPlugin from "@pothos/plugin-with-input";
-import { createRemoteJWKSet, jwtVerify } from "jose";
-import type { User } from "../../generated/prisma/client";
+import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
+import type PrismaTypes from "../generated/pothos-prisma-types";
+import { getDatamodel } from "../generated/pothos-prisma-types";
+import type { User } from "../generated/prisma/client";
 import { prisma } from "../prisma";
 
 export type Context = {
@@ -120,7 +120,10 @@ builder.mutationType({
           });
         }
 
-        return user.email;
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+        const jwt = new SignJWT().setSubject(user.id.toString());
+
+        return jwt.sign(secret);
       },
     }),
     createPost: t.withAuth({ loggedIn: true }).prismaFieldWithInput({
