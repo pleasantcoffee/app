@@ -2,7 +2,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
 import { graphql } from "gql.tada";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { client } from "../gql";
+import { client } from "~/gql";
 
 const HelloQuery = graphql(
   `

@@ -1,18 +1,23 @@
-import { graphqlServer } from "@hono/graphql-server";
-import { Hono } from "hono";
-import { auth } from "./auth";
-import { schema } from "./graphql";
+import { createYoga } from "graphql-yoga";
+import { type Context, schema } from "./graphql/schema";
 
-const app = new Hono({ strict: false });
+const yoga = createYoga<{}, Context>({
+  schema,
+  context: async ({ request }) => {
+    console.log(request.headers.get("Authorization"));
+    return {
+      user: null,
+    };
+  },
+});
 
-app.use(
-  "/graphql",
-  graphqlServer({
-    schema,
-    graphiql: true,
-  }),
+const server = Bun.serve({
+  fetch: yoga,
+});
+
+console.info(
+  `Server is running on ${new URL(
+    yoga.graphqlEndpoint,
+    `http://${server.hostname}:${server.port}`,
+  )}`,
 );
-
-app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
-
-export default app;

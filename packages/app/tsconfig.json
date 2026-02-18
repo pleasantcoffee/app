@@ -8,6 +8,10 @@
         "schema": "./schema.graphql",
         "tadaOutputLocation": "./graphql-env.d.ts"
       }
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
+    }
   }
 }

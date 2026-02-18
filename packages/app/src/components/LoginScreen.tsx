@@ -1,0 +1,62 @@
+import { useMutation } from "@tanstack/react-query";
+import {
+  AppleAuthenticationButton,
+  AppleAuthenticationButtonStyle,
+  AppleAuthenticationButtonType,
+  AppleAuthenticationScope,
+  signInAsync,
+} from "expo-apple-authentication";
+import { CodedError } from "expo-modules-core";
+import * as SecureStore from "expo-secure-store";
+import { graphql, type VariablesOf } from "gql.tada";
+import { View } from "react-native";
+import { client } from "~/gql";
+
+const SignInWithAppleMutation = graphql(
+  `
+    mutation SignInWithApple($idToken: String) {
+      signInWithApple(idToken: $idToken)
+    }
+  `,
+);
+
+export const LoginScreen: React.FC = () => {
+  const { mutate } = useMutation({
+    mutationFn: (variables: VariablesOf<typeof SignInWithAppleMutation>) =>
+      client.request(SignInWithAppleMutation, variables),
+    onSuccess: async (data) => {
+      console.log(data.signInWithApple);
+      await SecureStore.setItemAsync("token", data.signInWithApple);
+    },
+  });
+  return (
+    <View className="flex-1 justify-center">
+      <AppleAuthenticationButton
+        buttonType={AppleAuthenticationButtonType.SIGN_IN}
+        buttonStyle={AppleAuthenticationButtonStyle.BLACK}
+        style={{ height: 40 }}
+        onPress={async () => {
+          try {
+            const credential = await signInAsync({
+              requestedScopes: [
+                AppleAuthenticationScope.FULL_NAME,
+                AppleAuthenticationScope.EMAIL,
+              ],
+            });
+            mutate({
+              idToken: credential.identityToken,
+            });
+          } catch (error) {
+            if (error instanceof CodedError) {
+              if (error.code === "ERR_REQUEST_CANCELED") {
+                // handle that the user canceled the sign-in flow
+              } else {
+                // handle other errors
+              }
+            }
+          }
+        }}
+      />
+    </View>
+  );
+};
