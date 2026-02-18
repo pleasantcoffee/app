@@ -2,6 +2,7 @@ import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
 import { getDatamodel } from "@pothos/plugin-prisma/generated";
+import ScopeAuthPlugin from "@pothos/plugin-scope-auth";
 import WithInputPlugin from "@pothos/plugin-with-input";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import type { User } from "../../generated/prisma/client";
@@ -15,12 +16,23 @@ const builder = new SchemaBuilder<{
   DefaultFieldNullability: false;
   Context: Context;
   PrismaTypes: PrismaTypes;
+  AuthScopes: {
+    loggedIn: boolean;
+  };
+  AuthContexts: {
+    loggedIn: Context & { user: User };
+  };
 }>({
   defaultFieldNullability: false,
-  plugins: [PrismaPlugin, WithInputPlugin],
+  plugins: [ScopeAuthPlugin, PrismaPlugin, WithInputPlugin],
   prisma: {
     client: prisma,
     dmmf: getDatamodel(),
+  },
+  scopeAuth: {
+    authScopes: async (context) => ({
+      loggedIn: !!context.user,
+    }),
   },
 });
 
@@ -37,6 +49,13 @@ builder.prismaObject("User", {
   name: "User",
   fields: (t) => ({
     name: t.exposeString("name", { nullable: true }),
+    posts: t.relation("posts", {
+      query: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    }),
   }),
 });
 
@@ -47,16 +66,20 @@ builder.queryType({
       nullable: true,
       resolve: (_, __, ___, { user }) => user,
     }),
-    posts: t.prismaField({
-      type: ["Post"],
-      resolve: (query) =>
-        prisma.post.findMany({
-          ...query,
-          orderBy: {
-            id: "desc",
-          },
-        }),
-    }),
+    posts: t
+      .withAuth({
+        loggedIn: true,
+      })
+      .prismaField({
+        type: ["Post"],
+        resolve: (query) =>
+          prisma.post.findMany({
+            ...query,
+            orderBy: {
+              createdAt: "desc",
+            },
+          }),
+      }),
   }),
 });
 
@@ -100,16 +123,12 @@ builder.mutationType({
         return user.email;
       },
     }),
-    createPost: t.prismaFieldWithInput({
+    createPost: t.withAuth({ loggedIn: true }).prismaFieldWithInput({
       type: "Post",
       input: {
         title: t.input.string({ required: true }),
       },
       resolve: async (_, __, { input }, { user }) => {
-        if (!user) {
-          throw new Error("oh no");
-        }
-
         return prisma.post.create({
           data: {
             title: input.title,
