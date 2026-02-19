@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AppleAuthenticationButton,
   AppleAuthenticationButtonStyle,
@@ -11,6 +11,7 @@ import * as SecureStore from "expo-secure-store";
 import { graphql, type VariablesOf } from "gql.tada";
 import { View } from "react-native";
 import { client } from "~/gql";
+import { sessionQuery } from "~/queries/session";
 
 const SignInWithAppleMutation = graphql(
   `
@@ -21,12 +22,13 @@ const SignInWithAppleMutation = graphql(
 );
 
 export const LoginScreen: React.FC = () => {
+  const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (variables: VariablesOf<typeof SignInWithAppleMutation>) =>
       client.request(SignInWithAppleMutation, variables),
     onSuccess: async (data) => {
-      console.log(data.signInWithApple);
       await SecureStore.setItemAsync("token", data.signInWithApple);
+      queryClient.invalidateQueries(sessionQuery);
     },
   });
   return (

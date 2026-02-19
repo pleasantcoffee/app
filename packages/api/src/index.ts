@@ -1,5 +1,6 @@
 import { createYoga } from "graphql-yoga";
 import { jwtVerify } from "jose";
+import { until } from "until-async";
 import { type Context, schema } from "./graphql/schema";
 import { prisma } from "./prisma";
 
@@ -8,7 +9,7 @@ const yoga = createYoga<{}, Context>({
   context: async ({ request }) => {
     const token = request.headers
       .get("Authorization")
-      ?.match(/^bearer (\S+)$/i)?.[0];
+      ?.match(/^bearer (\S+)$/i)?.[1];
 
     if (!token) {
       return {
@@ -17,11 +18,17 @@ const yoga = createYoga<{}, Context>({
     }
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
+    const [error, data] = await until(() => jwtVerify(token, secret));
+
+    if (error) {
+      return {
+        user: null,
+      };
+    }
 
     const user = await prisma.user.findUnique({
       where: {
-        id: Number(payload.sub),
+        id: Number(data.payload.sub),
       },
     });
 

@@ -3,47 +3,29 @@ import "../global.css";
 import {
   QueryClient,
   QueryClientProvider,
-  queryOptions,
   useQuery,
 } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { graphql } from "gql.tada";
 import { useEffect } from "react";
 import { LoginScreen } from "~/components/LoginScreen";
-import { client } from "~/gql";
+import { sessionQuery } from "~/queries/session";
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-const SessionQuery = graphql(
-  `
-    query Session {
-      me {
-        id
-        name
-      }
-    }
-  `,
-);
-
-const sessionQuery = queryOptions({
-  queryKey: ["session"],
-  queryFn: () => client.request(SessionQuery),
-});
-
 const RootLayout: React.FC = () => {
-  const { isPending, data } = useQuery(sessionQuery, queryClient);
+  const { isLoading, data } = useQuery(sessionQuery, queryClient);
 
   useEffect(() => {
-    if (!isPending) {
+    if (!isLoading) {
       SplashScreen.hide();
     }
-  }, [isPending]);
+  }, [isLoading]);
 
-  if (isPending) {
+  if (isLoading) {
     return null;
   }
 

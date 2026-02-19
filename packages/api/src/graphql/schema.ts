@@ -95,35 +95,46 @@ builder.mutationType({
         idToken: t.arg.string({ required: true }),
       },
       resolve: async (_, { idToken }) => {
-        const { payload } = await jwtVerify(idToken, APPLE_JWKS, {
+        const { payload } = await jwtVerify<{
+          email?: string;
+        }>(idToken, APPLE_JWKS, {
           issuer: "https://appleid.apple.com",
-          audience: "ca.pleasantcoffee.app",
-          algorithms: ["RS256"],
+          audience: ["ca.pleasantcoffe.app", "host.exp.Exponent"],
         });
-
-        if (!payload.sub) {
-          throw new Error("invalid token");
-        }
 
         let user = await prisma.user.findFirst({
           where: {
-            appleId: payload.sub,
+            OR: [{ email: payload.email }, { appleId: payload.sub }],
           },
         });
 
         if (!user) {
           user = await prisma.user.create({
             data: {
-              email: "test@test.com",
+              email: payload.email,
               appleId: payload.sub,
+            },
+          });
+        } else if (!user.appleId) {
+          await prisma.user.update({
+            data: {
+              appleId: payload.sub,
+            },
+            where: {
+              id: user.id,
             },
           });
         }
 
         const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-        const jwt = new SignJWT().setSubject(user.id.toString());
+        const jwt = new SignJWT()
+          .setProtectedHeader({ alg: "HS256" })
+          .setIssuedAt()
+          .setSubject(user.id.toString())
+          .setExpirationTime("2h")
+          .sign(secret);
 
-        return jwt.sign(secret);
+        return jwt;
       },
     }),
     createPost: t.withAuth({ loggedIn: true }).prismaFieldWithInput({
@@ -136,7 +147,9 @@ builder.mutationType({
           data: {
             title: input.title,
             author: {
-              connect: user,
+              connect: {
+                id: user.id,
+              },
             },
           },
         });
