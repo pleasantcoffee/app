@@ -8,6 +8,9 @@
   "formatter": {
     "indentStyle": "space"
   },
+  "javascript": {
+    "experimentalEmbeddedSnippetsEnabled": true
+  },
   "linter": {
     "rules": {
       "nursery": {

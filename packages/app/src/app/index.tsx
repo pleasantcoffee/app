@@ -4,16 +4,14 @@ import { graphql } from "gql.tada";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { client } from "~/gql";
 
-const HelloQuery = graphql(
-  `
-    query HelloQuery {
-      posts {
-        id
-        title
-      }
+const HelloQuery = graphql(`
+  query HelloQuery {
+    posts {
+      id
+      title
     }
-  `,
-);
+  }
+`);
 
 const helloQuery = queryOptions({
   queryKey: ["posts"],
