@@ -1,8 +1,10 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { graphql } from "gql.tada";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { client } from "~/gql";
+import { sessionQuery } from "~/queries/session";
 
 const HelloQuery = graphql(`
   query HelloQuery {
@@ -20,6 +22,7 @@ const helloQuery = queryOptions({
 
 const IndexScreen: React.FC = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data, error, isPending } = useQuery(helloQuery);
 
   if (isPending) {
@@ -41,6 +44,16 @@ const IndexScreen: React.FC = () => {
           title: "Pleasant",
         }}
       />
+      <Pressable
+        onPress={async () => {
+          await SecureStore.deleteItemAsync("token");
+          queryClient.setQueryData(sessionQuery.queryKey, {
+            me: null,
+          });
+        }}
+      >
+        <Text>Log out</Text>
+      </Pressable>
       <Text>total posts: {data.posts.length}</Text>
       <Pressable
         onPress={() => {

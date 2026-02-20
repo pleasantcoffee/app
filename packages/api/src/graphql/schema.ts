@@ -66,6 +66,25 @@ builder.queryType({
       nullable: true,
       resolve: (_, __, ___, { user }) => user,
     }),
+    post: t
+      .withAuth({
+        loggedIn: true,
+      })
+      .prismaField({
+        type: "Post",
+        nullable: true,
+        args: {
+          postId: t.arg.int({ required: true }),
+        },
+        resolve: (query, _, { postId }) => {
+          return prisma.post.findUnique({
+            ...query,
+            where: {
+              id: postId,
+            },
+          });
+        },
+      }),
     posts: t
       .withAuth({
         loggedIn: true,

@@ -1,23 +1,52 @@
-import { useQueryClient } from "@tanstack/react-query";
-import * as SecureStore from "expo-secure-store";
-import { Pressable, Text } from "react-native";
-import { sessionQuery } from "~/queries/session";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router";
+import { ActivityIndicator, Pressable, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const FooScreen: React.FC = () => {
-  const queryClient = useQueryClient();
+  const router = useRouter();
+  const [permission, requestPermission] = useCameraPermissions();
+
+  if (!permission) {
+    return (
+      <SafeAreaView>
+        <ActivityIndicator />
+      </SafeAreaView>
+    );
+  }
+
+  if (!permission.granted) {
+    return (
+      <SafeAreaView>
+        <Text>we need permission to do it</Text>
+        <Pressable onPress={requestPermission}>
+          <Text>grant permission</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <Text>
-      <Pressable
-        onPress={async () => {
-          await SecureStore.deleteItemAsync("token");
-          queryClient.setQueryData(sessionQuery.queryKey, {
-            me: null,
-          });
+    <>
+      <CameraView style={{ flex: 1 }} />
+      <SafeAreaView
+        edges={["bottom", "left", "right"]}
+        style={{
+          position: "absolute",
+          insetInline: 0,
+          bottom: 0,
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <Text>Log out</Text>
-      </Pressable>
-    </Text>
+        <Pressable
+          className="size-16 rounded-full bg-white"
+          onPress={() => {
+            router.replace("/form");
+          }}
+        />
+      </SafeAreaView>
+    </>
   );
 };
 
