@@ -1,7 +1,3 @@
-import {
-  useImageLabelingModels,
-  useImageLabelingProvider,
-} from "@infinitered/react-native-mlkit-image-labeling";
 import "../global.css";
 
 import {

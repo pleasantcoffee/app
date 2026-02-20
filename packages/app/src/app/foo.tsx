@@ -1,4 +1,3 @@
-import { recognizeText } from "@infinitered/react-native-mlkit-text-recognition";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useRef } from "react";
@@ -50,12 +49,7 @@ const FooScreen: React.FC = () => {
               return;
             }
 
-            const image = await cameraRef.current.takePictureAsync();
-            const { text } = await recognizeText(image.uri);
-
-            console.log(text);
-
-            // router.replace("/form");
+            router.replace("/form");
           }}
         />
       </SafeAreaView>
