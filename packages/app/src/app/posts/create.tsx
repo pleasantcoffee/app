@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CoffeeCam } from "~/components/CoffeeCam";
 
-const FooScreen: React.FC = () => {
+const CreatePostScreen: React.FC = () => {
   const [permission, requestPermission] = useCameraPermissions();
 
   if (!permission) {
@@ -28,4 +28,4 @@ const FooScreen: React.FC = () => {
   return <CoffeeCam />;
 };
 
-export default FooScreen;
+export default CreatePostScreen;
