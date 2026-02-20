@@ -1,11 +1,15 @@
+import { recognizeText } from "@infinitered/react-native-mlkit-text-recognition";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
+import { useRef } from "react";
 import { ActivityIndicator, Pressable, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const FooScreen: React.FC = () => {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
+
+  const cameraRef = useRef<React.ComponentRef<typeof CameraView>>(null);
 
   if (!permission) {
     return (
@@ -28,7 +32,7 @@ const FooScreen: React.FC = () => {
 
   return (
     <>
-      <CameraView style={{ flex: 1 }} />
+      <CameraView ref={cameraRef} style={{ flex: 1 }} />
       <SafeAreaView
         edges={["bottom", "left", "right"]}
         style={{
@@ -41,8 +45,17 @@ const FooScreen: React.FC = () => {
       >
         <Pressable
           className="size-16 rounded-full bg-white"
-          onPress={() => {
-            router.replace("/form");
+          onPress={async () => {
+            if (!cameraRef.current) {
+              return;
+            }
+
+            const image = await cameraRef.current.takePictureAsync();
+            const { text } = await recognizeText(image.uri);
+
+            console.log(text);
+
+            // router.replace("/form");
           }}
         />
       </SafeAreaView>

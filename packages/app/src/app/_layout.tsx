@@ -1,3 +1,7 @@
+import {
+  useImageLabelingModels,
+  useImageLabelingProvider,
+} from "@infinitered/react-native-mlkit-image-labeling";
 import "../global.css";
 
 import {
@@ -9,7 +13,6 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import { LoginScreen } from "~/components/LoginScreen";
 import { sessionQuery } from "~/queries/session";
 
