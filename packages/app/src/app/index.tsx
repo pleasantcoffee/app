@@ -57,7 +57,7 @@ const IndexScreen: React.FC = () => {
       <Text>total posts: {data.posts.length}</Text>
       <Pressable
         onPress={() => {
-          router.push("/foo");
+          router.push("/create");
         }}
         className="rounded bg-red-300 px-4 py-2 text-red-950"
       >

@@ -1,12 +1,59 @@
-import { CameraView } from "expo-camera";
-import { useRouter } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
+import { type CameraCapturedPicture, CameraView } from "expo-camera";
+import { graphql } from "gql.tada";
 import { useRef } from "react";
-import { Pressable } from "react-native";
+import { Pressable, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { client } from "~/gql";
+
+const CreatePostFromImageMutation = graphql(`
+  mutation CreatePostFromImage($image: String!) {
+    createPostFromImage(image: $image) {
+      title
+    }
+  }
+`);
+
+const GetPresignedUrlMutation = graphql(`
+  mutation GetPresignedUrl($ext: String!) {
+    getPresignedUrl(ext: $ext) {
+      url
+      path
+    }
+  }
+`);
 
 export const CoffeeCam: React.FC = () => {
-  const router = useRouter();
   const cameraRef = useRef<React.ComponentRef<typeof CameraView>>(null);
+
+  const { data, mutate, isPending } = useMutation({
+    mutationFn: async (picture: CameraCapturedPicture) => {
+      const blob = await fetch(picture.uri).then((res) => res.blob());
+
+      const data = await client.request(GetPresignedUrlMutation, {
+        ext: picture.format,
+      });
+
+      const { url, path } = data.getPresignedUrl;
+      await fetch(url, {
+        method: "PUT",
+        body: blob,
+      });
+
+      return client.request(CreatePostFromImageMutation, {
+        image: path,
+      });
+    },
+  });
+
+  if (data) {
+    return (
+      <SafeAreaView>
+        <TextInput defaultValue={data.createPostFromImage.title} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <>
       <CameraView ref={cameraRef} style={{ flex: 1 }} />
@@ -21,18 +68,18 @@ export const CoffeeCam: React.FC = () => {
         }}
       >
         <Pressable
+          disabled={isPending}
           className="size-16 rounded-full bg-white"
           onPress={async () => {
             if (!cameraRef.current) {
               return;
             }
 
-            // const picture = await cameraRef.current.takePictureAsync({
-            //   quality: 0.5,
-            //   base64: true,
-            // });
+            const picture = await cameraRef.current.takePictureAsync({
+              quality: 0.5,
+            });
 
-            router.replace("/form");
+            mutate(picture);
           }}
         />
       </SafeAreaView>

@@ -48,8 +48,6 @@ builder.queryFields((t) => ({
     }),
 }));
 
-const gemini = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 const CoffeeProductSchema = z
   .object({
     containerType: z
@@ -127,6 +125,8 @@ const CoffeeProductSchema = z
   })
   .nullable();
 
+let gemini: GoogleGenAI;
+
 builder.mutationFields((t) => ({
   createPostFromImage: t.withAuth({ loggedIn: true }).prismaField({
     type: "Post",
@@ -134,17 +134,40 @@ builder.mutationFields((t) => ({
       image: t.arg.string({ required: true }),
     },
     resolve: async (query, _, { image }, { user }) => {
-      const response = await gemini.models.generateContent({
+      if (!gemini) {
+        gemini = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      }
+
+      const response = await fetch(image);
+      const arrayBuffer = await response.arrayBuffer();
+      const base64Data = Buffer.from(arrayBuffer).toString("base64");
+
+      const content = await gemini.models.generateContent({
         model: "gemini-2.5-flash",
         contents: [
           {
             inlineData: {
               mimeType: "image/jpeg",
-              data: image,
+              data: base64Data,
             },
           },
           {
-            text: "prompt here",
+            text: `
+              Role: You are an expert Specialty Coffee Q-Grader and OCR specialist. 
+
+              Task: Analyze the provided image of a coffee container. Your primary goal is to extract technical metadata that a coffee enthusiast would care about.
+
+              Instructions:
+              1. Detection: If the image is not a coffee bag, box, or tin, return null.
+              2. Label Scanning: Read all text on the label, including small print on the back, bottom, or sides. 
+              3. Specialized Extraction:
+                 - Roaster vs. Producer: Distinguish between the company that roasted the beans (e.g., Rogue Wave) and the family or farm that grew them (e.g., Herrera Family).
+                 - Varietals: Look for specific botanical names like Gesha, SL28, Bourbon, or Sidra.
+                 - Nerd Stats: Look for specific numbers like altitude (m.a.s.l.) and fermentation times (e.g., "72 hour anaerobic").
+                 - Tasting Notes: Identify flavor descriptors and return them as individual items in an array.
+              4. Inference: If 'roastLevel' is not explicitly stated, infer it from keywords. "Filter" usually implies Light; "Espresso" usually implies Medium-Dark or Dark.
+              5. Honesty: Do not hallucinate. If a field is missing from the image, leave it null or omit it.
+            `,
           },
         ],
         config: {
@@ -153,11 +176,13 @@ builder.mutationFields((t) => ({
         },
       });
 
-      if (!response.text) {
+      if (!content.text) {
         throw new Error("there was a problem");
       }
 
-      const product = CoffeeProductSchema.parse(JSON.parse(response.text));
+      const product = CoffeeProductSchema.parse(JSON.parse(content.text));
+
+      console.log(product);
 
       return prisma.post.create({
         ...query,
