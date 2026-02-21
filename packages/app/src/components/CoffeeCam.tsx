@@ -1,3 +1,4 @@
+import { basename } from "node:path";
 import { useMutation } from "@tanstack/react-query";
 import { type CameraCapturedPicture, CameraView } from "expo-camera";
 import { graphql } from "gql.tada";
@@ -14,11 +15,11 @@ const CreatePostFromImageMutation = graphql(`
   }
 `);
 
-const GetPresignedUrlMutation = graphql(`
-  mutation GetPresignedUrl($ext: String!) {
-    getPresignedUrl(ext: $ext) {
+const PresignedUrlMutation = graphql(`
+  mutation PresignedUrl($fileName: String!) {
+    presignedUrl: getPresignedUrl(fileName: $fileName) {
       url
-      path
+      key
     }
   }
 `);
@@ -28,20 +29,19 @@ export const CoffeeCam: React.FC = () => {
 
   const { data, mutate, isPending } = useMutation({
     mutationFn: async (picture: CameraCapturedPicture) => {
-      const blob = await fetch(picture.uri).then((res) => res.blob());
-
-      const data = await client.request(GetPresignedUrlMutation, {
-        ext: picture.format,
+      const { pathname } = new URL(picture.uri);
+      const { presignedUrl } = await client.request(PresignedUrlMutation, {
+        fileName: basename(pathname),
       });
 
-      const { url, path } = data.getPresignedUrl;
-      await fetch(url, {
+      const blob = await fetch(picture.uri).then((res) => res.blob());
+      await fetch(presignedUrl.url, {
         method: "PUT",
         body: blob,
       });
 
       return client.request(CreatePostFromImageMutation, {
-        image: path,
+        image: presignedUrl.key,
       });
     },
   });
@@ -76,7 +76,7 @@ export const CoffeeCam: React.FC = () => {
             }
 
             const picture = await cameraRef.current.takePictureAsync({
-              quality: 0.5,
+              quality: 0.75,
             });
 
             mutate(picture);

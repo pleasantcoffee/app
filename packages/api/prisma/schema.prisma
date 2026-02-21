@@ -31,8 +31,33 @@ model Post {
   authorId  Int      @map("author_id")
   published Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
+  productId Int?     @map("product_id")
 
-  author User @relation(fields: [authorId], references: [id])
+  author  User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
 
   @@map("posts")
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  roasterId Int?     @map("roaster_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  posts   Post[]
+  roaster Roaster? @relation(fields: [roasterId], references: [id])
+
+  @@map("products")
+}
+
+model Roaster {
+  id        Int      @id @default(autoincrement())
+  name      String
+  logo      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  products Product[]
+
+  @@map("roasters")
 }

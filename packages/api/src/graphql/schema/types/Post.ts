@@ -182,18 +182,60 @@ builder.mutationFields((t) => ({
 
       const product = CoffeeProductSchema.parse(JSON.parse(content.text));
 
-      console.log(product);
+      const roaster = await prisma.roaster.findFirst({
+        where: {
+          name: {
+            equals: product?.roaster?.trim(),
+            mode: "insensitive",
+          },
+        },
+        select: {
+          id: true,
+          products: {
+            where: {
+              name: {
+                equals: product?.name?.trim(),
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+      });
 
       return prisma.post.create({
         ...query,
         data: {
-          title: product?.name ?? "",
+          title: "Morning coffee",
           published: false,
           author: {
             connect: {
               id: user.id,
             },
           },
+          product: roaster?.products?.[0]
+            ? {
+                connect: {
+                  id: roaster.products[0].id,
+                },
+              }
+            : {
+                create: {
+                  name: product?.name,
+                  roaster: product?.roaster
+                    ? roaster
+                      ? {
+                          connect: {
+                            id: roaster.id,
+                          },
+                        }
+                      : {
+                          create: {
+                            name: product.roaster,
+                          },
+                        }
+                    : undefined,
+                },
+              },
         },
       });
     },

@@ -1,15 +1,19 @@
+import { extname } from "node:path";
 import { builder } from "../builder";
 
-const PresignedUrlRef = builder.objectRef<{ url: string; path: string }>(
-  "PresignedUrl",
-);
+type PresignedUrl = {
+  url: string;
+  key: string;
+};
 
-builder.objectType(PresignedUrlRef, {
-  fields: (t) => ({
-    url: t.exposeString("url"),
-    path: t.exposeString("path"),
-  }),
-});
+const PresignedUrlRef = builder
+  .objectRef<PresignedUrl>("PresignedUrl")
+  .implement({
+    fields: (t) => ({
+      url: t.exposeString("url"),
+      key: t.exposeString("key"),
+    }),
+  });
 
 builder.mutationField("getPresignedUrl", (t) =>
   t
@@ -19,13 +23,14 @@ builder.mutationField("getPresignedUrl", (t) =>
     .field({
       type: PresignedUrlRef,
       args: {
-        ext: t.arg.string({ required: true }),
+        fileName: t.arg.string({ required: true }),
       },
-      resolve: (_, { ext }) => {
-        const path = `${Bun.randomUUIDv7()}.${ext}`;
+      resolve: (_, { fileName }) => {
+        const ext = extname(fileName);
+        const key = `${Bun.randomUUIDv7()}.${ext}`;
         return {
-          path,
-          url: Bun.s3.presign(path, {
+          key,
+          url: Bun.s3.presign(key, {
             acl: "public-read",
           }),
         };
