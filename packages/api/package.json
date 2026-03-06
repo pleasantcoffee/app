@@ -4,7 +4,13 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "bun --hot src/index.ts"
+    "dev": "bun --hot src/index.ts",
+    "gen": "prisma generate --schema=./prisma/schema.prisma",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:reset": "prisma migrate reset",
+    "db:push": "prisma db push",
+    "compose:up": "docker compose -f compose.dev.yaml up -d",
+    "compose:down": "docker compose -f compose.dev.yaml down"
   },
   "dependencies": {
     "@google/genai": "^1.42.0",
