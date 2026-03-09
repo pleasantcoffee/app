@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import z from "zod";
-import { prisma } from "../../../prisma";
+import { prisma } from "~/prisma";
 import { builder } from "../builder";
 
 builder.prismaObject("Post", {
@@ -214,28 +214,28 @@ builder.mutationFields((t) => ({
           },
           product: roaster?.products?.[0]
             ? {
-                connect: {
-                  id: roaster.products[0].id,
-                },
-              }
-            : {
-                create: {
-                  name: product?.name,
-                  roaster: product?.roaster
-                    ? roaster
-                      ? {
-                          connect: {
-                            id: roaster.id,
-                          },
-                        }
-                      : {
-                          create: {
-                            name: product.roaster,
-                          },
-                        }
-                    : undefined,
-                },
+              connect: {
+                id: roaster.products[0].id,
               },
+            }
+            : {
+              create: {
+                name: product?.name,
+                roaster: product?.roaster
+                  ? roaster
+                    ? {
+                      connect: {
+                        id: roaster.id,
+                      },
+                    }
+                    : {
+                      create: {
+                        name: product.roaster,
+                      },
+                    }
+                  : undefined,
+              },
+            },
         },
       });
     },

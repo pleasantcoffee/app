@@ -1,5 +1,5 @@
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
-import { prisma } from "../../prisma";
+import { prisma } from "~/prisma";
 import { builder } from "./builder";
 import "./types";
 

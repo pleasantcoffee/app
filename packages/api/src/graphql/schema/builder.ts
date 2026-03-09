@@ -2,10 +2,10 @@ import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import ScopeAuthPlugin from "@pothos/plugin-scope-auth";
 import WithInputPlugin from "@pothos/plugin-with-input";
-import type PrismaTypes from "../../generated/pothos-prisma-types";
-import { getDatamodel } from "../../generated/pothos-prisma-types";
-import type { User } from "../../generated/prisma/client";
-import { prisma } from "../../prisma";
+import type PrismaTypes from "~/generated/pothos-prisma-types";
+import { getDatamodel } from "~/generated/pothos-prisma-types";
+import type { User } from "~/generated/prisma/client";
+import { prisma } from "~/prisma";
 
 export type Context = {
   user: User | null;
