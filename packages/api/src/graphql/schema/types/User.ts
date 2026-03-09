@@ -1,4 +1,3 @@
-import { hash } from "bcryptjs";
 import { prisma } from "~/prisma";
 import { builder } from "../builder";
 
@@ -37,7 +36,9 @@ builder.mutationFields((t) => ({
       name: t.input.string(),
     },
     resolve: async (_, __, { input }) => {
-      const hashedPassword = await hash(input.password, 10);
+      const hashedPassword = await Bun.password.hash(input.password, {
+        algorithm: "bcrypt",
+      });
 
       return prisma.user.create({
         data: {
