@@ -1,8 +1,10 @@
 import { createYoga } from "graphql-yoga";
 import { jwtVerify } from "jose";
-import { type Context, schema } from "./graphql/schema";
+import { schema } from "./graphql/schema";
+import type { Context } from "./graphql/schema/builder";
 import { prisma } from "./prisma";
 
+// biome-ignore lint/complexity/noBannedTypes: No TServer override type to apply.
 const yoga = createYoga<{}, Context>({
   schema,
   context: async ({ request }) => {
