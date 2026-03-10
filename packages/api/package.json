@@ -9,6 +9,7 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset",
     "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
     "compose:up": "docker compose -f compose.dev.yaml up -d",
     "compose:down": "docker compose -f compose.dev.yaml down",
     "compose:logs": "docker logs -f api"
