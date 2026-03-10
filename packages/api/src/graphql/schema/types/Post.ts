@@ -214,28 +214,28 @@ builder.mutationFields((t) => ({
           },
           product: roaster?.products?.[0]
             ? {
-              connect: {
-                id: roaster.products[0].id,
-              },
-            }
+                connect: {
+                  id: roaster.products[0].id,
+                },
+              }
             : {
-              create: {
-                name: product?.name,
-                roaster: product?.roaster
-                  ? roaster
-                    ? {
-                      connect: {
-                        id: roaster.id,
-                      },
-                    }
-                    : {
-                      create: {
-                        name: product.roaster,
-                      },
-                    }
-                  : undefined,
+                create: {
+                  name: product?.name,
+                  roaster: product?.roaster
+                    ? roaster
+                      ? {
+                          connect: {
+                            id: roaster.id,
+                          },
+                        }
+                      : {
+                          create: {
+                            name: product.roaster,
+                          },
+                        }
+                    : undefined,
+                },
               },
-            },
         },
       });
     },

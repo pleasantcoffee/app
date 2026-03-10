@@ -9,7 +9,10 @@
     "indentStyle": "space"
   },
   "javascript": {
-    "experimentalEmbeddedSnippetsEnabled": true
+    "experimentalEmbeddedSnippetsEnabled": true,
+    "formatter": {
+      "semicolons": "always"
+    }
   },
   "linter": {
     "rules": {

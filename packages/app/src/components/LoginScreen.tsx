@@ -13,13 +13,11 @@ import { View } from "react-native";
 import { client } from "~/gql";
 import { sessionQuery } from "~/queries/session";
 
-const SignInWithAppleMutation = graphql(
-  `
-    mutation SignInWithApple($idToken: String!) {
-      signInWithApple(idToken: $idToken)
-    }
-  `,
-);
+const SignInWithAppleMutation = graphql(`
+  mutation SignInWithApple($idToken: String!) {
+    signInWithApple(idToken: $idToken)
+  }
+`);
 
 export const LoginScreen: React.FC = () => {
   const queryClient = useQueryClient();
