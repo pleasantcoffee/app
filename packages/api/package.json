@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "bun --hot src/index.ts",
     "gen": "prisma generate --schema=./prisma/schema.prisma",
+    "gen:schema": "bun src/scripts/generate-schema.ts",
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset",
     "db:push": "prisma db push",
