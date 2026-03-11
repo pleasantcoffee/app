@@ -1,7 +1,4 @@
 .env*
-
-# Codegen
 src/generated
-schema.graphql
 
 !.env.example
