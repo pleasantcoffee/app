@@ -29,6 +29,7 @@ export const LoginScreen: React.FC = () => {
       queryClient.invalidateQueries(sessionQuery);
     },
   });
+  
   return (
     <View className="flex-1 justify-center">
       <AppleAuthenticationButton
