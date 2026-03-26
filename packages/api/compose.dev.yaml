@@ -12,22 +12,6 @@ services:
       - 5432:5432
     volumes:
       - db-data:/var/lib/postgresql
-  api:
-    build:
-      context: ../..
-      dockerfile: packages/api/Dockerfile
-      target: dev
-    container_name: api
-    restart: always
-    environment:
-      DATABASE_URL: postgres://admin:postgres@db:5432/pleasant-db
-    ports:
-      - 3000:3000
-    volumes:
-      - ./src:/usr/src/app/packages/api/src
-      - ./prisma:/usr/src/app/packages/api/prisma
-    depends_on:
-      - db
 
 volumes:
-  db-data: {}
+  db-data: 
