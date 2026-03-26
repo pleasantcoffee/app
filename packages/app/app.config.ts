@@ -20,10 +20,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: "plsnt",
   android: {
     package: "ca.pleasantcoffee.app",
+    icon: "./assets/images/android-icon.png",
   },
   ios: {
     bundleIdentifier: "ca.pleasantcoffee.app",
     usesAppleSignIn: true,
+    icon: {
+      light: "./assets/images/ios-light.png",
+      dark: "./assets/images/ios-dark.png",
+      tinted: "./assets/images/ios-tinted.png",
+    },
   },
   experiments: {
     typedRoutes: true,
