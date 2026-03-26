@@ -1,7 +1,13 @@
 import { useForm } from "@tanstack/react-form";
 import { Text, View } from "react-native";
 import { z } from "zod";
-import { Button, FieldInfo, Input, PasswordInput } from "~/components/ui";
+import {
+  Button,
+  FieldInfo,
+  FormInfo,
+  Input,
+  PasswordInput,
+} from "~/components/ui";
 import { useLoginEmailPassword } from "~/hooks/mutations/useLoginEmailPassword";
 
 const formSchema = z.object({
@@ -18,12 +24,20 @@ export const LoginForm: React.FC = () => {
       email: "",
       password: "",
     },
-    onSubmit: async ({ value: { email, password } }) => {
-      try {
-        mutate({ email, password });
-      } catch (error) {
-        console.error("Unable to log in:", error);
-      }
+    onSubmit: ({ value: { email, password }, formApi }) => {
+      mutate(
+        { email, password },
+        {
+          onError: (error) => {
+            formApi.setErrorMap({
+              onSubmit: {
+                form: error.message,
+                fields: {},
+              },
+            });
+          },
+        },
+      );
     },
     validators: {
       onSubmitAsync: formSchema,
@@ -72,6 +86,9 @@ export const LoginForm: React.FC = () => {
             </Button>
           </>
         )}
+      </form.Subscribe>
+      <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
+        {(formError) => <FormInfo formError={formError} />}
       </form.Subscribe>
     </View>
   );
