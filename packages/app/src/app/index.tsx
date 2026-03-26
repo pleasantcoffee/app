@@ -1,9 +1,8 @@
 import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { graphql } from "gql.tada";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { client } from "~/gql";
+import { client, clearToken } from "~/gql";
 import { sessionQuery } from "~/queries/session";
 
 const HelloQuery = graphql(`
@@ -38,7 +37,7 @@ const IndexScreen: React.FC = () => {
   }
 
   return (
-    <View className="p-4">
+    <View className="h-full flex-col justify-center p-4">
       <Stack.Screen
         options={{
           title: "Pleasant",
@@ -46,9 +45,9 @@ const IndexScreen: React.FC = () => {
       />
       <Pressable
         onPress={async () => {
-          await SecureStore.deleteItemAsync("token");
-          queryClient.setQueryData(sessionQuery.queryKey, {
-            me: null,
+          await clearToken();
+          await queryClient.invalidateQueries({
+            queryKey: sessionQuery.queryKey,
           });
         }}
       >

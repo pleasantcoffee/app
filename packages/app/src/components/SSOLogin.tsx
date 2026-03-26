@@ -9,7 +9,6 @@ import {
 import { CodedError } from "expo-modules-core";
 import * as SecureStore from "expo-secure-store";
 import { graphql, type VariablesOf } from "gql.tada";
-import { View } from "react-native";
 import { client } from "~/gql";
 import { sessionQuery } from "~/queries/session";
 
@@ -19,7 +18,7 @@ const SignInWithAppleMutation = graphql(`
   }
 `);
 
-export const LoginScreen: React.FC = () => {
+export const SSOLogin: React.FC = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (variables: VariablesOf<typeof SignInWithAppleMutation>) =>
@@ -29,38 +28,35 @@ export const LoginScreen: React.FC = () => {
       queryClient.invalidateQueries(sessionQuery);
     },
   });
-  
   return (
-    <View className="flex-1 justify-center">
-      <AppleAuthenticationButton
-        buttonType={AppleAuthenticationButtonType.SIGN_IN}
-        buttonStyle={AppleAuthenticationButtonStyle.BLACK}
-        style={{ height: 40 }}
-        onPress={async () => {
-          try {
-            const credential = await signInAsync({
-              requestedScopes: [
-                AppleAuthenticationScope.FULL_NAME,
-                AppleAuthenticationScope.EMAIL,
-              ],
-            });
+    <AppleAuthenticationButton
+      buttonType={AppleAuthenticationButtonType.SIGN_IN}
+      buttonStyle={AppleAuthenticationButtonStyle.BLACK}
+      style={{ height: 40 }}
+      onPress={async () => {
+        try {
+          const credential = await signInAsync({
+            requestedScopes: [
+              AppleAuthenticationScope.FULL_NAME,
+              AppleAuthenticationScope.EMAIL,
+            ],
+          });
 
-            if (credential.identityToken) {
-              mutate({
-                idToken: credential.identityToken,
-              });
-            }
-          } catch (error) {
-            if (error instanceof CodedError) {
-              if (error.code === "ERR_REQUEST_CANCELED") {
-                // handle that the user canceled the sign-in flow
-              } else {
-                // handle other errors
-              }
+          if (credential.identityToken) {
+            mutate({
+              idToken: credential.identityToken,
+            });
+          }
+        } catch (error) {
+          if (error instanceof CodedError) {
+            if (error.code === "ERR_REQUEST_CANCELED") {
+              // handle that the user canceled the sign-in flow
+            } else {
+              // handle other errors
             }
           }
-        }}
-      />
-    </View>
+        }
+      }}
+    />
   );
 };

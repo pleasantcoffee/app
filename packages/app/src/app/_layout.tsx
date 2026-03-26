@@ -1,5 +1,6 @@
 import "../global.css";
 
+import { FloatingDevTools } from "@buoy-gg/core";
 import {
   QueryClient,
   QueryClientProvider,
@@ -9,7 +10,6 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { LoginScreen } from "~/components/LoginScreen";
 import { sessionQuery } from "~/queries/session";
 
 SplashScreen.preventAutoHideAsync();
@@ -18,6 +18,7 @@ const queryClient = new QueryClient();
 
 const RootLayout: React.FC = () => {
   const { isLoading, data } = useQuery(sessionQuery, queryClient);
+  const isLoggedIn = !!data?.me;
 
   useEffect(() => {
     if (!isLoading) {
@@ -31,16 +32,20 @@ const RootLayout: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {!data?.me ? (
-        <LoginScreen />
-      ) : (
-        <>
-          <Stack>
-            <Stack.Screen name="foo" options={{ headerShown: false }} />
-          </Stack>
-          <StatusBar style="auto" />
-        </>
-      )}
+      <Stack>
+        <Stack.Protected guard={!isLoggedIn}>
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-up" options={{ headerTitle: "" }} />
+        </Stack.Protected>
+        <Stack.Protected guard={isLoggedIn}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="create" options={{ headerShown: false }} />
+          <Stack.Screen name="form" options={{ headerShown: false }} />
+          <Stack.Screen name="posts" options={{ headerShown: false }} />
+        </Stack.Protected>
+      </Stack>
+      <StatusBar style="auto" />
+      <FloatingDevTools />
     </QueryClientProvider>
   );
 };

@@ -29,7 +29,7 @@ export const CoffeeCam: React.FC = () => {
   const { data, mutate, isPending } = useMutation({
     mutationFn: async (picture: CameraCapturedPicture) => {
       const { pathname } = new URL(picture.uri);
-      const fileName = pathname.split('/').pop() || 'image';
+      const fileName = pathname.split("/").pop() || "image";
       const { presignedUrl } = await client.request(PresignedUrlMutation, {
         fileName,
       });
