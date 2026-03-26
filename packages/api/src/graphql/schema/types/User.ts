@@ -1,4 +1,3 @@
-import { prisma } from "~/prisma";
 import { builder } from "../builder";
 
 builder.prismaObject("User", {
@@ -15,8 +14,6 @@ builder.prismaObject("User", {
   }),
 });
 
-/** Queries */
-
 builder.queryField("me", (t) =>
   t.prismaField({
     type: "User",
@@ -24,29 +21,3 @@ builder.queryField("me", (t) =>
     resolve: (_, __, ___, { user }) => user,
   }),
 );
-
-/** Mutations */
-
-builder.mutationFields((t) => ({
-  createUser: t.prismaFieldWithInput({
-    type: "User",
-    input: {
-      email: t.input.string({ required: true }),
-      password: t.input.string({ required: true }),
-      name: t.input.string(),
-    },
-    resolve: async (_, __, { input }) => {
-      const hashedPassword = await Bun.password.hash(input.password, {
-        algorithm: "bcrypt",
-      });
-
-      return prisma.user.create({
-        data: {
-          email: input.email,
-          password: hashedPassword,
-          name: input.name,
-        },
-      });
-    },
-  }),
-}));

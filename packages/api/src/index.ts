@@ -3,6 +3,7 @@ import { jwtVerify } from "jose";
 import { schema } from "./graphql/schema";
 import type { Context } from "./graphql/schema/builder";
 import { prisma } from "./prisma";
+import { encodeSecret } from "./utils/auth";
 
 // biome-ignore lint/complexity/noBannedTypes: No TServer override type to apply.
 const yoga = createYoga<{}, Context>({
@@ -17,7 +18,7 @@ const yoga = createYoga<{}, Context>({
         throw new Error("no token provided");
       }
 
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const secret = encodeSecret(process.env.JWT_SECRET);
       const { payload } = await jwtVerify(token, secret);
 
       const user = await prisma.user.findUniqueOrThrow({
@@ -37,9 +38,7 @@ const yoga = createYoga<{}, Context>({
   },
 });
 
-const server = Bun.serve({
-  fetch: yoga,
-});
+const server = Bun.serve({ fetch: yoga });
 
 console.info(
   `Server is running on ${new URL(
