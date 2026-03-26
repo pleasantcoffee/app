@@ -3,11 +3,11 @@ import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { LoginForm } from "~/components/forms/LoginForm";
 import { SSOLogin } from "~/components/SSOLogin";
-import { Heading } from "~/components/ui";
+import { DefaultSheetView, Heading } from "~/components/ui";
 
 const LoginScreen: React.FC = () => {
   return (
-    <View className="flex-1 flex-col justify-center gap-10 px-12">
+    <DefaultSheetView className="flex-col gap-10">
       <Image source="assets/images/flower.svg" />
       <Heading>Log into your Account</Heading>
       <LoginForm />
@@ -21,7 +21,7 @@ const LoginScreen: React.FC = () => {
           <Text className="text-purple-600">Sign up</Text>
         </Link>
       </Text>
-    </View>
+    </DefaultSheetView>
   );
 };
 

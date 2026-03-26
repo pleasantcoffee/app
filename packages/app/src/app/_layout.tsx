@@ -41,7 +41,10 @@ const RootLayout: React.FC = () => {
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="create" options={{ headerShown: false }} />
           <Stack.Screen name="form" options={{ headerShown: false }} />
-          <Stack.Screen name="posts" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="posts/[postId]"
+            options={{ headerShown: false }}
+          />
         </Stack.Protected>
       </Stack>
       <StatusBar style="auto" />

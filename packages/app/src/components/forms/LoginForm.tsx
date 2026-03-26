@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Text, View } from "react-native";
 import { z } from "zod";
-import { Button, FieldInfo, Input } from "~/components/ui";
+import { Button, FieldInfo, Input, PasswordInput } from "~/components/ui";
 import { useLoginEmailPassword } from "~/hooks/mutations/useLoginEmailPassword";
 
 const formSchema = z.object({
@@ -51,12 +51,9 @@ export const LoginForm: React.FC = () => {
         {(field) => (
           <>
             <Text>Password</Text>
-            <Input
-              className="rounded-md bg-white p-2"
-              keyboardType="visible-password"
+            <PasswordInput
               value={field.state.value}
               onChangeText={field.handleChange}
-              secureTextEntry
             />
             <FieldInfo field={field} />
           </>

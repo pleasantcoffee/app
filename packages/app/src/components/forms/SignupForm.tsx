@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Text, View } from "react-native";
 import { z } from "zod";
-import { Button, FieldInfo, Input } from "~/components/ui";
+import { Button, FieldInfo, Input, PasswordInput } from "~/components/ui";
 import { useCreateUser } from "~/hooks/mutations/useCreateUser";
 
 const formSchema = z
@@ -58,11 +58,9 @@ export const SignupForm: React.FC = () => {
         {(field) => (
           <>
             <Text>Password</Text>
-            <Input
-              className="rounded-md bg-white p-2"
+            <PasswordInput
               value={field.state.value}
               onChangeText={field.handleChange}
-              secureTextEntry
             />
             <FieldInfo field={field} />
           </>
@@ -72,11 +70,10 @@ export const SignupForm: React.FC = () => {
         {(field) => (
           <>
             <Text>Confirm Password</Text>
-            <Input
-              className="rounded-md bg-white p-2"
+            <PasswordInput
               value={field.state.value}
               onChangeText={field.handleChange}
-              secureTextEntry
+              placeholder="Confirm your password"
             />
             <FieldInfo field={field} />
           </>
