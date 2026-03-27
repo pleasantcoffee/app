@@ -21,7 +21,7 @@ const createUser = async ({ email, password }: UserCredentials) => {
       password,
     });
 
-    SecureStore.setItemAsync("token", res.createUser as string);
+    SecureStore.setItemAsync("token", res.createUser);
   } catch (error) {
     console.error("Error creating user:", error);
     throw error;
