@@ -1,4 +1,7 @@
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import * as SecureStore from "expo-secure-store";
+import { graphql, type VariablesOf } from "gql.tada";
 import { Text, View } from "react-native";
 import { z } from "zod";
 import {
@@ -8,7 +11,14 @@ import {
   Input,
   PasswordInput,
 } from "~/components/ui";
-import { useLoginEmailPassword } from "~/hooks/mutations/useLoginEmailPassword";
+import { client } from "~/gql";
+import { sessionQuery } from "~/queries/session";
+
+const SignInWithEmailPasswordMutation = graphql(`
+  mutation SignInWithEmailPassword($email: String!, $password: String!) {
+    signInWithEmailPassword(input: { email: $email, password: $password })
+  }
+`);
 
 const formSchema = z.object({
   email: z.email({ error: "Please enter a valid email address" }),
@@ -18,7 +28,32 @@ const formSchema = z.object({
 });
 
 export const LoginForm: React.FC = () => {
-  const { mutate, isPending } = useLoginEmailPassword();
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: VariablesOf<typeof SignInWithEmailPasswordMutation>) => {
+      try {
+        const res = await client.request(SignInWithEmailPasswordMutation, {
+          email,
+          password,
+        });
+
+        await SecureStore.setItemAsync(
+          "token",
+          res.signInWithEmailPassword as string,
+        );
+        return res;
+      } catch (error) {
+        throw new Error("Login failed");
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: sessionQuery.queryKey });
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       email: "",
