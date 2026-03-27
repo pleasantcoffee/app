@@ -47,9 +47,7 @@ export const SignupForm: React.FC = () => {
         },
       );
     },
-    validators: {
-      onSubmitAsync: formSchema,
-    },
+    validators: { onSubmit: formSchema },
   });
 
   return (
@@ -108,7 +106,9 @@ export const SignupForm: React.FC = () => {
         )}
       </form.Subscribe>
       <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
-        {(formError) => <FormInfo formError={formError} />}
+        {(formError) => {
+          return <FormInfo formError={formError} />;
+        }}
       </form.Subscribe>
     </View>
   );

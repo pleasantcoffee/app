@@ -6,7 +6,7 @@ interface FormInfoProps {
 }
 
 export const FormInfo: React.FC<FormInfoProps> = ({ formError }) => {
-  return formError ? (
-    <Text className="text-red-500">{formError.toString()}</Text>
+  return formError && typeof formError === "string" ? (
+    <Text className="text-red-500">{formError}</Text>
   ) : null;
 };

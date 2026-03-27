@@ -39,9 +39,7 @@ export const LoginForm: React.FC = () => {
         },
       );
     },
-    validators: {
-      onSubmitAsync: formSchema,
-    },
+    validators: { onSubmitAsync: formSchema },
   });
 
   return (
@@ -88,7 +86,9 @@ export const LoginForm: React.FC = () => {
         )}
       </form.Subscribe>
       <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
-        {(formError) => <FormInfo formError={formError} />}
+        {(formError) => {
+          return <FormInfo formError={formError} />;
+        }}
       </form.Subscribe>
     </View>
   );
