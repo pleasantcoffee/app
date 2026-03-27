@@ -48,31 +48,24 @@ builder.mutationFields((t) => ({
       password: t.input.string({ required: true }),
     },
     resolve: async (_, { input }) => {
-      let token: string;
+      const user = await prisma.user.findUnique({
+        where: { email: input.email },
+      });
 
-      try {
-        const user = await prisma.user.findUnique({
-          where: { email: input.email },
-        });
-
-        if (!user || !user.password) {
-          throw new Error("Invalid email or password");
-        }
-
-        const isValidPassword = await Bun.password.verify(
-          input.password,
-          user.password,
-        );
-        if (!isValidPassword) {
-          throw new Error("Invalid email or password");
-        }
-
-        token = await createJWT(user, process.env.JWT_SECRET);
-      } catch (error) {
+      if (!user || !user.password) {
         throw new Error("Invalid email or password");
       }
 
-      return token;
+      const isValidPassword = await Bun.password.verify(
+        input.password,
+        user.password,
+      );
+
+      if (!isValidPassword) {
+        throw new Error("Invalid email or password");
+      }
+
+      return createJWT(user, process.env.JWT_SECRET);
     },
   }),
 }));
