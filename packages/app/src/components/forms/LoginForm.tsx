@@ -15,8 +15,10 @@ import { client } from "~/gql";
 import { sessionQuery } from "~/queries/session";
 
 const SignInWithEmailPasswordMutation = graphql(`
-  mutation SignInWithEmailPassword($email: String!, $password: String!) {
-    signInWithEmailPassword(input: { email: $email, password: $password })
+  mutation SignInWithEmailPassword(
+    $input: MutationSignInWithEmailPasswordInput!
+  ) {
+    signInWithEmailPassword(input: $input)
   }
 `);
 
@@ -30,26 +32,11 @@ const formSchema = z.object({
 export const LoginForm: React.FC = () => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: async ({
-      email,
-      password,
-    }: VariablesOf<typeof SignInWithEmailPasswordMutation>) => {
-      try {
-        const res = await client.request(SignInWithEmailPasswordMutation, {
-          email,
-          password,
-        });
-
-        await SecureStore.setItemAsync(
-          "token",
-          res.signInWithEmailPassword as string,
-        );
-        return res;
-      } catch (error) {
-        throw new Error("Login failed");
-      }
-    },
-    onSuccess: async () => {
+    mutationFn: (
+      variables: VariablesOf<typeof SignInWithEmailPasswordMutation>,
+    ) => client.request(SignInWithEmailPasswordMutation, variables),
+    onSuccess: async (data) => {
+      await SecureStore.setItemAsync("token", data.signInWithEmailPassword);
       await queryClient.invalidateQueries({ queryKey: sessionQuery.queryKey });
     },
   });
@@ -59,9 +46,9 @@ export const LoginForm: React.FC = () => {
       email: "",
       password: "",
     },
-    onSubmit: ({ value: { email, password }, formApi }) => {
+    onSubmit: ({ value, formApi }) => {
       mutate(
-        { email, password },
+        { input: value },
         {
           onError: (error) => {
             formApi.setErrorMap({

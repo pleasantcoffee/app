@@ -1,4 +1,7 @@
 import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
+import * as SecureStore from "expo-secure-store";
+import { graphql, type VariablesOf } from "gql.tada";
 import { Text, View } from "react-native";
 import { z } from "zod";
 import {
@@ -8,7 +11,13 @@ import {
   Input,
   PasswordInput,
 } from "~/components/ui";
-import { useCreateUser } from "~/hooks/mutations/useCreateUser";
+import { client } from "~/gql";
+
+const CreateUserMutation = graphql(`
+  mutation CreateUser($input: MutationCreateUserInput!) {
+    createUser(input: $input)
+  }
+`);
 
 const formSchema = z
   .object({
@@ -25,7 +34,14 @@ const formSchema = z
   });
 
 export const SignupForm: React.FC = () => {
-  const { mutate } = useCreateUser();
+  const { mutate } = useMutation({
+    mutationFn: (variables: VariablesOf<typeof CreateUserMutation>) =>
+      client.request(CreateUserMutation, variables),
+    onSuccess: (data) => {
+      SecureStore.setItemAsync("token", data.createUser);
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -34,7 +50,7 @@ export const SignupForm: React.FC = () => {
     },
     onSubmit: ({ value: { email, password }, formApi }) => {
       mutate(
-        { email, password },
+        { input: { email, password } },
         {
           onError: (error) => {
             formApi.setErrorMap({
