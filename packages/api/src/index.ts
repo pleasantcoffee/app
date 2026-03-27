@@ -5,7 +5,6 @@ import type { Context } from "./graphql/schema/builder";
 import { prisma } from "./prisma";
 import { encodeSecret } from "./utils/auth";
 
-// biome-ignore lint/complexity/noBannedTypes: No TServer override type to apply.
 const yoga = createYoga<{}, Context>({
   schema,
   context: async ({ request }) => {
