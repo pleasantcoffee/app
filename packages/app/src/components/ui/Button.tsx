@@ -1,6 +1,6 @@
 import { Pressable, type PressableProps, Text } from "react-native";
 
-interface ButtonProps extends Omit<PressableProps, "children"> {
+interface ButtonProps extends PressableProps {
   children: React.ReactNode;
 }
 
