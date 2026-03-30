@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import z from "zod";
-import { prisma } from "../../../prisma";
+import { prisma } from "~/prisma";
 import { builder } from "../builder";
 
 builder.prismaObject("Post", {

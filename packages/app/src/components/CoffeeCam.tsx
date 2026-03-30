@@ -1,4 +1,3 @@
-import { basename } from "node:path";
 import { useMutation } from "@tanstack/react-query";
 import { type CameraCapturedPicture, CameraView } from "expo-camera";
 import { graphql } from "gql.tada";
@@ -30,8 +29,9 @@ export const CoffeeCam: React.FC = () => {
   const { data, mutate, isPending } = useMutation({
     mutationFn: async (picture: CameraCapturedPicture) => {
       const { pathname } = new URL(picture.uri);
+      const fileName = pathname.split("/").pop() || "image";
       const { presignedUrl } = await client.request(PresignedUrlMutation, {
-        fileName: basename(pathname),
+        fileName,
       });
 
       const blob = await fetch(picture.uri).then((res) => res.blob());

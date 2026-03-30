@@ -1,7 +1,8 @@
-import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
-import { prisma } from "../../prisma";
+import { createRemoteJWKSet, jwtVerify } from "jose";
+import { prisma } from "~/prisma";
 import { builder } from "./builder";
 import "./types";
+import { createJWT } from "~/utils/auth";
 
 const APPLE_JWKS = createRemoteJWKSet(
   new URL("https://appleid.apple.com/auth/keys"),
@@ -48,15 +49,9 @@ builder.mutationType({
           });
         }
 
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-        const jwt = new SignJWT()
-          .setProtectedHeader({ alg: "HS256" })
-          .setIssuedAt()
-          .setSubject(user.id.toString())
-          .setExpirationTime("2h")
-          .sign(secret);
+        const token = createJWT(user, process.env.JWT_SECRET);
 
-        return jwt;
+        return token;
       },
     }),
   }),

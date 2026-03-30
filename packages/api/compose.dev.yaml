@@ -14,4 +14,4 @@ services:
       - db-data:/var/lib/postgresql
 
 volumes:
-  db-data: {}
+  db-data: 

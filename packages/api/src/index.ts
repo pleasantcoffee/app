@@ -1,7 +1,9 @@
 import { createYoga } from "graphql-yoga";
 import { jwtVerify } from "jose";
-import { type Context, schema } from "./graphql/schema";
+import { schema } from "./graphql/schema";
+import type { Context } from "./graphql/schema/builder";
 import { prisma } from "./prisma";
+import { encodeSecret } from "./utils/auth";
 
 const yoga = createYoga<{}, Context>({
   schema,
@@ -15,7 +17,7 @@ const yoga = createYoga<{}, Context>({
         throw new Error("no token provided");
       }
 
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const secret = encodeSecret(process.env.JWT_SECRET);
       const { payload } = await jwtVerify(token, secret);
 
       const user = await prisma.user.findUniqueOrThrow({
@@ -35,9 +37,7 @@ const yoga = createYoga<{}, Context>({
   },
 });
 
-const server = Bun.serve({
-  fetch: yoga,
-});
+const server = Bun.serve({ fetch: yoga });
 
 console.info(
   `Server is running on ${new URL(

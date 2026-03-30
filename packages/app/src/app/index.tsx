@@ -3,6 +3,7 @@ import { Stack, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { graphql } from "gql.tada";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { DefaultSheetView } from "~/components/ui";
 import { client } from "~/gql";
 import { sessionQuery } from "~/queries/session";
 
@@ -38,7 +39,7 @@ const IndexScreen: React.FC = () => {
   }
 
   return (
-    <View className="p-4">
+    <DefaultSheetView>
       <Stack.Screen
         options={{
           title: "Pleasant",
@@ -47,8 +48,8 @@ const IndexScreen: React.FC = () => {
       <Pressable
         onPress={async () => {
           await SecureStore.deleteItemAsync("token");
-          queryClient.setQueryData(sessionQuery.queryKey, {
-            me: null,
+          await queryClient.invalidateQueries({
+            queryKey: sessionQuery.queryKey,
           });
         }}
       >
@@ -63,7 +64,7 @@ const IndexScreen: React.FC = () => {
       >
         <Text>teasdfst</Text>
       </Pressable>
-    </View>
+    </DefaultSheetView>
   );
 };
 
