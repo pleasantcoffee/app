@@ -38,13 +38,7 @@ const RootLayout: React.FC = () => {
           <Stack.Screen name="sign-up" options={{ headerTitle: "" }} />
         </Stack.Protected>
         <Stack.Protected guard={isLoggedIn}>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="create" options={{ headerShown: false }} />
-          <Stack.Screen name="form" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="posts/[postId]"
-            options={{ headerShown: false }}
-          />
+          <Stack.Screen name="(tabs)/index" />
         </Stack.Protected>
       </Stack>
       <StatusBar style="auto" />

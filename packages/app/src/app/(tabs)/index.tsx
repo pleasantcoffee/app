@@ -2,8 +2,8 @@ import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { graphql } from "gql.tada";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { DefaultSheetView } from "~/components/ui";
+import { ActivityIndicator, Text, View } from "react-native";
+import { Button, DefaultSheetView } from "~/components/ui";
 import { client } from "~/gql";
 import { sessionQuery } from "~/queries/session";
 
@@ -45,7 +45,7 @@ const IndexScreen: React.FC = () => {
           title: "Pleasant",
         }}
       />
-      <Pressable
+      <Button
         onPress={async () => {
           await SecureStore.deleteItemAsync("token");
           await queryClient.invalidateQueries({
@@ -53,17 +53,18 @@ const IndexScreen: React.FC = () => {
           });
         }}
       >
-        <Text>Log out</Text>
-      </Pressable>
+        Log out
+      </Button>
       <Text>total posts: {data.posts.length}</Text>
-      <Pressable
+      <Text>{JSON.stringify(data.posts, null, 2)}</Text>
+      <Button
         onPress={() => {
           router.push("/create");
         }}
-        className="rounded bg-red-300 px-4 py-2 text-red-950"
+        className="bg-red-300"
       >
-        <Text>teasdfst</Text>
-      </Pressable>
+        <Text className="text-red-950">teasdfst</Text>
+      </Button>
     </DefaultSheetView>
   );
 };
