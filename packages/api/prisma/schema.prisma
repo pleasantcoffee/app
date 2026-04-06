@@ -20,9 +20,22 @@ model User {
   appleId   String?  @map("apple_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  posts Post[]
+  posts      Post[]
+  following  Follows[] @relation("follower")
+  followedBy Follows[] @relation("following")
 
   @@map("users")
+}
+
+model Follows {
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followerId  Int
+  following   User     @relation("following", fields: [followingId], references: [id])
+  followingId Int
+  createdAt   DateTime @default(now())
+
+  @@id([followerId, followingId])
+  @@map("follows")
 }
 
 model Post {
