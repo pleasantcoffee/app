@@ -11,6 +11,8 @@ builder.prismaObject("User", {
         },
       },
     }),
+    following: t.relation("following"),
+    followers: t.relation("followedBy"),
   }),
 });
 
