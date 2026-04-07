@@ -12,6 +12,9 @@ const HelloQuery = graphql(`
     posts {
       id
       title
+      author {
+        name
+      }
     }
   }
 `);
